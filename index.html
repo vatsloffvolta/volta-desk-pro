@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VoltaDesk Pro Futures</title>
+  <style id="theme-style">
+    :root {
+      --bg: #000;
+      --text: #fff;
+      --input: #222;
+      --border: #444;
+      --btn: #333;
+      --green: #4caf50;
+      --red: #f44336;
+      --orange: #ff9800;
+      --lemon: #cddc39;
+      --blue: #2196f3;
+      --volume-orange: #cc5500;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Segoe UI, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 16px; }
+    #exchange-time {
+      font-size: 1.4rem; font-weight: bold; text-align: center;
+      padding: 10px; background: rgba(255,255,255,0.05);
+      margin-bottom: 12px; border-radius: 6px;
+      letter-spacing: 1px;
+    }
+    .top-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 12px;
+    }
+    #theme-toggle {
+      width: 36px; height: 36px; border-radius: 50%; background: var(--btn);
+      border: 1px solid var(--border); cursor: pointer; display: flex;
+      align-items: center; justify-content: center; font-size: 1.2rem;
+    }
+    .header { display: flex; justify-content: space-between; margin-bottom: 16px; align-items: center; }
+    .logo { font-size: 1.8rem; color: #00bfff; font-weight: bold; }
+    h3 { margin: 12px 0 8px; font-size: 1.1rem; }
+    label { display: block; font-size: 0.85rem; opacity: 0.8; margin-bottom: 4px; }
+    input, select, button { width: 100%; padding: 8px; margin-bottom: 8px; background: var(--input); border: 1px solid var(--border); color: var(--text); border-radius: 4px; }
+    input[readonly] { background: #111; }
+    button { background: var(--btn); cursor: pointer; font-weight: bold; }
+    button:hover { opacity: 0.9; }
+    .mode-profile-row {
+      display: flex; gap: 12px; flex-wrap: wrap; align-items: stretch;
+      margin-bottom: 12px;
+    }
+    .profile-group, .pos-buttons {
+      display: flex; gap: 4px; flex-wrap: wrap; align-items: stretch;
+    }
+    .profile-btn, #btnLong, #btnShort {
+      flex: 1;
+      padding: 8px;
+      font-size: 0.85rem;
+      text-align: center;
+      background: var(--btn);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      white-space: nowrap;
+      line-height: 1.2;
+    }
+    #btnLong.active { border-color: var(--green); }
+    #btnShort.active { border-color: var(--red); }
+    body[data-theme="dark"] #btnLong.active { color: #81c784; }
+    body[data-theme="dark"] #btnShort.active { color: #e57373; }
+    .profile-btn.active {
+      box-shadow: 0 -3px 0 0 var(--orange) inset;
+      border: 2px solid var(--orange);
+    }
+    .btn-group { display: flex; gap: 8px; margin: 12px 0; }
+    .btn-group > * { flex: 1; }
+    .schema-display {
+      text-align: center; font-family: monospace; font-size: 1.4rem;
+      padding: 12px; background: var(--input); border-radius: 6px;
+      margin-bottom: 4px;
+      color: var(--orange);
+      text-shadow: 0 0 6px rgba(255,152,0,0.3);
+    }
+    .schema-hint {
+      text-align: center;
+      font-size: 0.75rem;
+      opacity: 0.6;
+      margin-bottom: 8px;
+    }
+    .output { background: var(--input); padding: 12px; border-radius: 6px; font-family: monospace; max-height: 200px; overflow: auto; }
+    .log { margin-top: 20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    th, td { padding: 6px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: rgba(255,255,255,0.05); white-space: nowrap; }
+    td { font-family: monospace; }
+    .tp-row { grid-column: span 2; margin-top: 8px; }
+    .tp-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; }
+    .tp-cell input { text-align: center; font-weight: bold; }
+    #tp1Price { color: #4caf50; }
+    #tp2Price { color: #81c784; }
+    #tp3Price { color: #cddc39; }
+    #tp4Price { color: #ff9800; }
+    #customTickerRow { display: none; margin-top: 4px; }
+    .save-row { display: flex; gap: 6px; margin-top: 4px; }
+    #devtools-warning {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.95);
+      color: #ff9800;
+      font-size: 1.2rem;
+      text-align: center;
+      padding: 20vh 20px;
+      z-index: 9999;
+    }
+    #devtools-warning button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #333;
+      color: white;
+      border: 0;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #watermark {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      font-size: 0.8rem;
+      opacity: 0.3;
+      pointer-events: none;
+      display: none;
+    }
+    .demo-badge {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      font-size: 0.85rem;
+      font-weight: normal;
+      background: rgba(128,128,128,0.1);
+      color: #aaa;
+      padding: 4px 10px;
+      border-radius: 4px;
+      z-index: 999;
+      pointer-events: none;
+    }
+    #helpModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      z-index: 10000;
+    }
+    #helpModal .content {
+      width: 90%;
+      max-width: 600px;
+      background: #111;
+      margin: 40px auto;
+      padding: 20px;
+      border-radius: 8px;
+      color: #fff;
+      font-family: Segoe UI;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 0 20px rgba(0,0,0,0.7);
+    }
+    #helpModal h3 {
+      margin-top: 0;
+      color: #ff9800;
+    }
+    #helpModal h4 {
+      color: #2196f3;
+      margin: 16px 0 8px;
+    }
+    #helpModal p {
+      margin: 10px 0;
+    }
+    #helpModal ul {
+      margin: 8px 0 12px;
+      padding-left: 20px;
+      font-size: 0.95rem;
+    }
+    #helpModal code {
+      background: #444;
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-family: monospace;
+    }
+    #helpModal button {
+      margin-top: 16px;
+      background: #ff9800;
+      color: #000;
+      border: 0;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    #depo, #go {
+      font-size: 1.1rem !important;
+      padding: 10px 8px !important;
+      height: 36px !important;
+    }
+    .debug-log {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: rgba(0,0,0,0.8);
+      color: #0f0;
+      font-family: monospace;
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 4px;
+      z-index: 9999;
+      display: none;
+    }
+  </style>
+</head>
+<body data-theme="dark">
+<div class="debug-log" id="debugLog"></div>
+<div class="top-bar">
+  <div id="exchange-time">--:--:-- (RT) 🇷🇺</div>
+  <button id="theme-toggle">🌙</button>
+</div>
+<div class="header">
+  <div class="logo">VoltaDesk Pro</div>
+  <div>VoltaDesk Pro Futures • V2.4.1 — by Вячеслав</div>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <input type="text" id="licenseToken" placeholder="Введите токен" 
+           style="width:220px;padding:6px 8px;background:#222;border:1px solid #444;color:#fff;font-size:0.85rem;">
+    <button id="btnActivate" style="
+      padding:6px 12px;background:#2196f3;color:white;border:0;border-radius:4px;
+      font-weight:bold;cursor:pointer;font-size:0.85rem;
+    ">Активировать</button>
+  </div>
+</div>
+<div class="demo-badge" id="demoBadge">DEMO</div>
+<div id="watermark">VoltaDesk.Pro • DEMO</div>
+<h3>1. Входные данные</h3>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;">
+  <div><label>Депозит (₽)</label><input type="number" id="depo" value="50000" step="1000"></div>
+  <div>
+    <label>Инструмент</label>
+    <select id="instr" style="height:36px;"></select>
+  </div>
+  <div><label>ГО на лот (₽)</label><input type="number" id="go" value="5210" step="100"></div>
+  <div><label>Шаг цены</label><input type="number" id="priceStep" value="0.01" step="0.001" min="0.001"></div>
+  <div><label>Стоимость шага, ₽</label><input type="number" id="stepCost" value="1" step="0.01" min="0.01"></div>
+  <div><label>Риск (%)</label><input type="number" id="riskPct" value="3" min="0.1" max="5" step="0.1"></div>
+  <div><label>Риск (₽)</label><input type="number" id="riskRub" value="1500" step="10"></div>
+  <div><label>Цена</label><input type="number" id="price" value="308.50" step="0.01"></div>
+  <div><label>Стоп-лосс (₽)</label><input type="number" id="slPrice" value="301.50" step="0.01"></div>
+  <div><label>Стоп-лосс (шаги)</label><input type="number" id="sl" value="700" step="10" readonly></div>
+  <div><label>ATR (шаги)</label><input type="number" id="atr" placeholder="необязательно" step="100"></div>
+</div>
+<div class="tp-row">
+  <div class="tp-grid">
+    <div class="tp-cell">
+      <label style="color:#4caf50;font-size:0.85rem;">Уровень выставления TP1</label>
+      <input type="text" id="tp1Price" readonly placeholder="315.50">
+    </div>
+    <div class="tp-cell">
+      <label style="color:#81c784;font-size:0.85rem;">Уровень выставления TP2</label>
+      <input type="text" id="tp2Price" readonly placeholder="322.00">
+    </div>
+    <div class="tp-cell">
+      <label style="color:#cddc39;font-size:0.85rem;">Уровень выставления TP3</label>
+      <input type="text" id="tp3Price" readonly placeholder="329.00">
+    </div>
+    <div class="tp-cell">
+      <label style="color:#ff9800;font-size:0.85rem;">Уровень выставления TP4</label>
+      <input type="text" id="tp4Price" readonly placeholder="343.00">
+    </div>
+  </div>
+</div>
+<div id="customTickerRow">
+  <label>Тикер</label>
+  <input type="text" id="customTickerInput" placeholder="Напр., RTS-6.25" style="width:100%;padding:6px;background:var(--input);border:1px solid var(--border);color:var(--text);">
+  <div class="save-row">
+    <button id="btnSaveInstrument" style="flex:1;background:#2196f3;color:white;">💾 Сохранить настройки</button>
+    <select id="savedInstruments" style="flex:2;height:36px;"></select>
+  </div>
+</div>
+<h3>2. Профиль & Позиция</h3>
+<div class="mode-profile-row">
+  <div style="flex:2;">
+    <label>Профиль</label>
+    <div class="profile-group">
+      <button class="profile-btn active" data-profile="cons">Конс •|•|•|–</button>
+      <button class="profile-btn" data-profile="bal">Баланс ••|•|•|–</button>
+      <button class="profile-btn" data-profile="aggr">Агресс •|•|•|••</button>
+      <button class="profile-btn" id="btnAutoProfile">Авто-профиль</button>
+    </div>
+  </div>
+  <div style="flex:1; display:flex;flex-direction:column;justify-content:space-between;">
+    <label>Позиция</label>
+    <div class="pos-buttons">
+      <button id="btnLong" class="green active">Long</button>
+      <button id="btnShort" class="red">Short</button>
+    </div>
+  </div>
+</div>
+<h3>3. Расчёт</h3>
+<div class="schema-display" id="schemeVis">•|•|•|–</div>
+<div class="schema-hint">Схема: лоты на TP1|TP2|TP3|TP4</div>
+<div id="rrDisplay" style="text-align:center;font-size:0.85rem;opacity:0.7;margin-top:0;">
+  R:R ≈ 2.0
+</div>
+<div class="output" id="out">Нажмите «Рассчитать»</div>
+<div class="btn-group">
+  <button id="btnCalc">Рассчитать</button>
+  <button id="btnLog">В журнал</button>
+</div>
+<h3 class="log">Журнал сделок</h3>
+<table id="logTable">
+  <thead>
+    <tr>
+      <th>Время</th>
+      <th>Тикер</th>
+      <th>Pos</th>
+      <th>Схема</th>
+      <th>Лотов</th>
+      <th>SL (шаги)</th>
+      <th>TP1–TP4 (₽)</th>
+      <th>Прибыль (₽)</th>
+    </tr>
+  </thead>
+  <tbody id="logBody">
+    <tr><td colspan="8" style="text-align:center">— пусто —</td></tr>
+  </tbody>
+</table>
+<div class="btn-group">
+  <button id="btnExpExcel" style="background:#4caf50;color:white;">Excel</button>
+  <button id="btnExpWord" style="background:#2196f3;color:white;">Word</button>
+  <button id="btnClearLog" style="background:#f44336;color:white;width:50%;">Очистить журнал</button>
+  <button id="btnBackup" style="background:#9c27b0;color:white;width:50%;">Бэкап журнала</button>
+</div>
+<div style="position:fixed;bottom:16px;right:16px;">
+  <button style="background:#ff9800;color:#000;border:none;border-radius:50%;width:40px;height:40px;font-weight:bold;cursor:pointer;" id="btnHelp">?</button>
+</div>
+<div id="devtools-warning">
+  <div>
+    ⚠️ DevTools обнаружен.<br>
+    Контент скрыт в целях защиты ПО.<br>
+    <button onclick="document.getElementById('devtools-warning').style.display='none'">Закрыть предупреждение</button>
+  </div>
+</div>
+<div id="helpModal">
+  <div class="content">
+    <h3>VoltaDesk Pro Futures • V2.4.1</h3>
+    <p>Ваш локальный аналитический инструмент для фьючерсной торговли.<br>
+    Все расчёты — в браузере. Никаких облаков. Никаких данных на серверах.</p>
+    <h4>🚀 Как начать</h4>
+    <p>1️⃣ Выберите инструмент (из списка или «Свой»)<br>
+       2️⃣ Укажите: депозит, цена, стоп-лосс (в ₽)<br>
+       3️⃣ Нажмите «Рассчитать» → скопируйте TP1–TP4 в терминал<br>
+       4️⃣ «В журнал» — чтобы отслеживать эффективность</p>
+    <h4>🔒 Демо и активация</h4>
+    <p>• Демо-режим: <b>3 дня</b> — для знакомства с интерфейсом.<br>
+       • После истечения срока — интерфейс блокируется.<br>
+       • Для продолжения работы: <b>активируйте Pro-версию за 4 990 ₽</b>.</p>
+    <h4>💳 Как оплатить и получить токен</h4>
+    <p>1. Оплатите <b>4 990 ₽</b> через СБП (QR вышлю по запросу).<br>
+       2. Отправьте скрин оплаты + ваш email на: <b>VoltaDesk.Pro@yandex.ru</b><br>
+       3. В течение 24 часов вы получите токен вида:<br>
+       <code>VD-FUT-2025-ivan_gmail_com-AB3C9D</code><br>
+       4. Вставьте его в поле «Введите токен» → нажмите «Активировать».</p>
+    <p>📌 В случае технического сбоя — запросите повторную отправку токена. Ответ — в течение 24 часов.</p>
+    <p><small>
+      ⚠️ Автор не несёт ответственности за неверное использование или торговлю без управления риском.<br>
+      📧 Вопросы: <b>VoltaDesk.Pro@yandex.ru</b>
+    </small></p>
+    <button onclick="document.getElementById('helpModal').style.display='none'">Закрыть</button>
+  </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  // === DEBUG MODE ===
+  const urlParams = new URLSearchParams(window.location.search);
+  const DEBUG = urlParams.has('demo_debug') && urlParams.get('demo_debug') === '1';
+  const debugLog = document.getElementById('debugLog');
+  if (DEBUG) debugLog.style.display = 'block';
+  function dlog(...args) {
+    if (!DEBUG) return;
+    console.log('[DEBUG]', ...args);
+    debugLog.textContent += args.map(x => typeof x === 'object' ? JSON.stringify(x, null, 1) : x).join(' ') + '\n';
+  }
+
+  // === 1. CANVAS FINGERPRINT (стойкий) ===
+  function getCanvasFingerprint() {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = 200;
+    canvas.height = 50;
+    ctx.textBaseline = 'top';
+    ctx.font = "14px 'Arial'";
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#f60';
+    ctx.fillRect(0, 0, 200, 50);
+    ctx.fillStyle = '#069';
+    ctx.fillText('VoltaDesk.Pro', 2, 15);
+    ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
+    ctx.fillText('canvas.fp', 4, 32);
+    return canvas.toDataURL().substring(0, 64);
+  }
+
+  // === 2. INDEXEDDB ===
+  function openDB() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open('VoltaGuardDB', 2);
+      req.onerror = () => reject(req.error);
+      req.onsuccess = () => resolve(req.result);
+      req.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains('meta')) {
+          db.createObjectStore('meta');
+        }
+      };
+    });
+  }
+  async function getDB(key) {
+    try {
+      const db = await openDB();
+      return new Promise(resolve => {
+        const tx = db.transaction('meta', 'readonly');
+        const store = tx.objectStore('meta');
+        const req = store.get(key);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => resolve(null);
+      });
+    } catch (e) { return null; }
+  }
+  async function setDB(key, value) {
+    try {
+      const db = await openDB();
+      const tx = db.transaction('meta', 'readwrite');
+      const store = tx.objectStore('meta');
+      store.put(value, key);
+      await new Promise(r => tx.oncomplete = r);
+    } catch (e) {}
+  }
+
+  // === 3. TIME GUARD ===
+  async function initTimeGuard() {
+    return new Promise(resolve => {
+      try {
+        const blob = new Blob([`
+          self.onmessage = () => {
+            const now = Date.now(), perf = performance.now();
+            postMessage({ now, perf });
+          };
+        `], { type: 'application/javascript' });
+        const url = URL.createObjectURL(blob);
+        const w = new Worker(url);
+        w.onmessage = e => {
+          const { now, perf } = e.data;
+          const jsNow = Date.now(), jsPerf = performance.now();
+          const dT = Math.abs(now - jsNow), dP = Math.abs(perf - jsPerf);
+          if (dT > 500 || dP > 50) {
+            dlog(`⏱️ Время подозрительно: dT=${dT}ms, dP=${dP}ms`);
+          }
+          resolve(true);
+          w.terminate(); URL.revokeObjectURL(url);
+        };
+        w.postMessage('check');
+      } catch (e) {
+        dlog('⏱️ Worker недоступен — пропускаем');
+        resolve(true);
+      }
+    });
+  }
+
+  // === 4. MAX DEMO GUARD ===
+  async function initDemoGuard() {
+    dlog('→ initTimeGuard...');
+    const timeOK = await initTimeGuard();
+    if (!timeOK) {
+      alert('⚠️ Время подменено. Демо заблокирован.');
+      return false;
+    }
+    const KEY_FIRST_RUN = 'volta_firstRun';
+    const KEY_FP = 'volta_fp';
+    const KEY_CALC = 'volta_calcCount';
+    const canvasFP = getCanvasFingerprint();
+    const now = Date.now();
+    dlog('🖼️ canvasFP:', canvasFP.substring(0, 24) + '...');
+
+    const dbFR = await getDB(KEY_FIRST_RUN); dlog('💾 DB firstRun:', dbFR);
+    const dbFP = await getDB(KEY_FP);         dlog('💾 DB FP:', dbFP?.substring(0, 10));
+    const ssFR = sessionStorage.getItem(KEY_FIRST_RUN); dlog('🗃️ SS firstRun:', ssFR);
+    const lsFR = localStorage.getItem(KEY_FIRST_RUN);   dlog('🗃️ LS firstRun:', lsFR);
+    const ssFP = sessionStorage.getItem(KEY_FP);
+    const lsFP = localStorage.getItem(KEY_FP);
+    let firstRun = dbFR || ssFR || lsFR;
+    let savedFP = dbFP || ssFP || lsFP;
+
+    if (savedFP === canvasFP && firstRun) {
+      dlog('✅ FP совпадает — восстанавливаем firstRun');
+      sessionStorage.setItem(KEY_FIRST_RUN, firstRun);
+      localStorage.setItem(KEY_FIRST_RUN, firstRun);
+      sessionStorage.setItem(KEY_FP, canvasFP);
+      localStorage.setItem(KEY_FP, canvasFP);
+      setDB(KEY_FIRST_RUN, firstRun);
+      setDB(KEY_FP, canvasFP);
+    } else {
+      dlog('🆕 Новое устройство — стартуем демо');
+      firstRun = now.toString();
+      sessionStorage.setItem(KEY_FIRST_RUN, firstRun);
+      localStorage.setItem(KEY_FIRST_RUN, firstRun);
+      sessionStorage.setItem(KEY_FP, canvasFP);
+      localStorage.setItem(KEY_FP, canvasFP);
+      setDB(KEY_FIRST_RUN, firstRun);
+      setDB(KEY_FP, canvasFP);
+    }
+
+    const elapsedHours = (now - parseInt(firstRun)) / (1000 * 60 * 60);
+    dlog(`🕒 Прошло: ${elapsedHours.toFixed(2)} / 72 часов`);
+    if (elapsedHours > 72) {
+      dlog('❌ Демо истёк');
+      const calcCount = parseInt(
+        (await getDB(KEY_CALC)) ||
+        sessionStorage.getItem(KEY_CALC) ||
+        localStorage.getItem(KEY_CALC) ||
+        '0'
+      );
+      const savedInstruments = JSON.parse(localStorage.getItem('voltaInstruments') || '[]').length;
+      const logCount = JSON.parse(localStorage.getItem('voltaLog') || '[]').length;
+      document.body.innerHTML = `
+        <div style="
+          position:fixed;top:0;left:0;width:100vw;height:100vh;
+          background:#000;color:#ff9800;display:flex;flex-direction:column;
+          justify-content:center;align-items:center;text-align:center;padding:20px;
+          font-family:Segoe UI;line-height:1.6;z-index:99999;
+        ">
+          <h2 style="font-size:1.8rem;margin:0;">VoltaDesk Pro Futures</h2>
+          <p style="font-size:1.2rem;margin:20px 0;">Демо-период (3 дня) истёк.</p>
+          <p>Для продолжения работы активируйте Pro-версию.</p>
+          <p style="opacity:0.7;margin:16px 0;">Вы использовали VoltaDesk:</p>
+          <ul style="opacity:0.8;font-size:0.95rem;margin-bottom:20px;text-align:left;max-width:400px;">
+            <li>• рассчитали ${calcCount} схем</li>
+            <li>• сохранили ${savedInstruments} инструментов</li>
+            <li>• добавили ${logCount} записей в журнал</li>
+          </ul>
+          <button onclick="location.reload()" style="
+            background:#333;color:#fff;border:1px solid #ff9800;padding:12px 24px;
+            border-radius:6px;font-weight:bold;cursor:pointer;
+          ">Обновить</button>
+          <p style="margin-top:30px;font-size:0.85rem;opacity:0.5;">
+            VoltaDesk.Pro • V2.4.1 — by Вячеслав
+          </p>
+        </div>
+      `;
+      return false;
+    }
+
+    window.incrCalcCount = async () => {
+      const n = (parseInt(await getDB(KEY_CALC) || '0')) + 1;
+      sessionStorage.setItem(KEY_CALC, n);
+      localStorage.setItem(KEY_CALC, n);
+      setDB(KEY_CALC, n);
+    };
+    dlog('✅ Демо активен');
+    return true;
+  }
+
+  // === ВСЕ ИЗМЕНЕНИЯ НИЖЕ — PATCHED ===
+
+  function safeBtoa(str) {
+    try {
+      return btoa(unescape(encodeURIComponent(str)));
+    } catch (e) {
+      return '';
+    }
+  }
+
+  function checkDOMIntegrity() {
+    const watermark = document.getElementById('watermark');
+    const badge = document.getElementById('demoBadge');
+    const tokenInput = document.getElementById('licenseToken');
+    if (!watermark || !badge || !tokenInput) return false;
+    const styles = getComputedStyle(badge);
+    if (styles.pointerEvents !== 'none' || badge.textContent.trim() !== 'DEMO') return false;
+    return true;
+  }
+
+  function validateToken(token) {
+    const parts = token.trim().split('-');
+    if (parts.length !== 5 || parts[0] !== 'VD' || parts[1] !== 'FUT' || parts[2] !== '2025') return false;
+    const emailSafe = parts[3];
+    const hash = parts[4].toUpperCase();
+    const expected = safeBtoa(emailSafe + 'volta2025_vtb').substring(0,6).toUpperCase();
+    return hash === expected;
+  }
+
+  function activatePro(token) {
+    try {
+      if (validateToken(token)) {
+        localStorage.setItem('volta_pro_token', token);
+        sessionStorage.setItem('volta_pro_token', token);
+        document.getElementById('watermark').style.display = 'none';
+        document.getElementById('demoBadge').style.display = 'none';
+        document.querySelector('.header > div:last-child').style.display = 'none';
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  document.getElementById('btnActivate').onclick = () => {
+    const token = document.getElementById('licenseToken').value.trim();
+    if (activatePro(token)) {
+      alert('✅ VoltaDesk Pro активирован!');
+      location.reload();
+    } else {
+      alert('❌ Неверный токен. Проверьте написание.');
+    }
+  };
+
+  const token = localStorage.getItem('volta_pro_token') || sessionStorage.getItem('volta_pro_token');
+  let isPro = false;
+  if (token && validateToken(token)) {
+    dlog('🔑 PRO: токен валиден');
+    isPro = activatePro(token);
+  } else if (token) {
+    dlog('🔑 Токен найден, но невалиден — очищаем');
+    localStorage.removeItem('volta_pro_token');
+    sessionStorage.removeItem('volta_pro_token');
+  }
+
+  let demoGuardPassed = false;
+  if (isPro) {
+    demoGuardPassed = true;
+    document.getElementById('watermark').style.display = 'none';
+    document.getElementById('demoBadge').style.display = 'none';
+    dlog('✅ PRO-режим активирован');
+  } else {
+    dlog('🔧 Запускаем initDemoGuard()...');
+    demoGuardPassed = await initDemoGuard();
+    if (demoGuardPassed) {
+      document.getElementById('watermark').style.display = 'block';
+      document.getElementById('demoBadge').style.display = 'block';
+      dlog('✅ DEMO-режим активирован');
+    }
+  }
+  if (!demoGuardPassed) return;
+
+  console.clear();
+  console.log(
+    "%cVoltaDesk PRO FUTURES • V2.4.1 — Фокус на фьючерсы\nАвторское ПО Вячеслава. Все права защищены.",
+    "color:#ff9800;font-weight:bold;font-size:14px;background:#000;padding:10px;border-left:4px solid #ff9800;"
+  );
+
+  // === ОСНОВНОЙ КОД (с патчами) ===
+
+  if (typeof window._devtoolsOpen === 'undefined') {
+    window._devtoolsOpen = false;
+    setInterval(() => {
+      const threshold = 160;
+      if (
+        (window.outerHeight - window.innerHeight > threshold) ||
+        (window.outerWidth - window.innerWidth > threshold)
+      ) {
+        if (!window._devtoolsOpen) {
+          window._devtoolsOpen = true;
+          document.getElementById('devtools-warning').style.display = 'flex';
+        }
+      } else {
+        window._devtoolsOpen = false;
+      }
+    }, 1000);
+  }
+
+  const instruments = [
+    { value: 'sberf', text: 'SBERF (вечный)', go: 5210, priceStep: 0.01, stepCost: 1 },
+    { value: 'gazp', text: 'GAZP (вечный)', go: 2142, priceStep: 0.01, stepCost: 1 },
+    { value: 'usdrub', text: 'USD/RUB (вечный)', go: 12155, priceStep: 0.01, stepCost: 10 },
+    { value: 'imoex', text: 'IMOEX (вечный)', go: 2653, priceStep: 0.5, stepCost: 5 },
+    { value: 'gold', text: 'Золото (вечный)', go: 1065, priceStep: 0.1, stepCost: 0.1 },
+    { value: 'srz5', text: 'SBRF-12.25 (SRZ5)', go: 5500, priceStep: 0.01, stepCost: 1 },
+    { value: 'custom', text: 'Свой инструмент' }
+  ];
+
+  function updateInstruments() {
+    const sel = document.getElementById('instr');
+    sel.innerHTML = '';
+    instruments.forEach(item => {
+      const opt = document.createElement('option');
+      opt.value = item.value;
+      opt.textContent = item.text;
+      if (item.value === 'sberf') opt.selected = true;
+      sel.appendChild(opt);
+    });
+    sel.dispatchEvent(new Event('change'));
+  }
+  updateInstruments();
+
+  function updateSavedInstruments() {
+    const sel = document.getElementById('savedInstruments');
+    sel.innerHTML = '<option value="">— Мои инструменты —</option>';
+    const saved = JSON.parse(localStorage.getItem('voltaInstruments') || '[]');
+    saved.forEach(i => {
+      const opt = document.createElement('option');
+      opt.value = i.ticker;
+      opt.textContent = `${i.name} (${i.ticker})`;
+      sel.appendChild(opt);
+    });
+  }
+
+  document.getElementById('instr').addEventListener('change', function() {
+    const item = instruments.find(x => x.value === this.value);
+    const customRow = document.getElementById('customTickerRow');
+    if (item.value === 'custom') {
+      customRow.style.display = 'block';
+    } else {
+      customRow.style.display = 'none';
+      document.getElementById('go').value = item.go;
+      document.getElementById('priceStep').value = item.priceStep;
+      document.getElementById('stepCost').value = item.stepCost;
+      document.getElementById('riskPct').value = '3';
+      syncRisk();
+      updateSLinSteps();
+    }
+  });
+
+  document.getElementById('btnSaveInstrument').addEventListener('click', () => {
+    const ticker = document.getElementById('customTickerInput').value.trim().toUpperCase();
+    if (!ticker) return alert('⚠️ Укажите тикер (латиницей или цифрами)');
+    const go = +document.getElementById('go').value;
+    const priceStep = +document.getElementById('priceStep').value;
+    const stepCost = +document.getElementById('stepCost').value;
+    if (isNaN(go) || isNaN(priceStep) || isNaN(stepCost)) {
+      return alert('⚠️ Заполните все числовые поля');
+    }
+    const nameInput = prompt('Название инструмента:', ticker);
+    if (nameInput === null) return;
+    const name = nameInput.trim() || ticker;
+    const instrument = { ticker, go, priceStep, stepCost, name };
+    const saved = JSON.parse(localStorage.getItem('voltaInstruments') || '[]');
+    const exists = saved.findIndex(i => i.ticker === ticker);
+    if (exists >= 0) {
+      if (!confirm(`Инструмент ${ticker} уже сохранён. Обновить?`)) return;
+      saved[exists] = instrument;
+    } else {
+      saved.push(instrument);
+    }
+    localStorage.setItem('voltaInstruments', JSON.stringify(saved));
+    updateSavedInstruments();
+    alert(`✅ ${name} (${ticker}) сохранён`);
+  });
+
+  document.getElementById('savedInstruments').addEventListener('change', function() {
+    if (!this.value) return;
+    const saved = JSON.parse(localStorage.getItem('voltaInstruments') || '[]');
+    const inst = saved.find(i => i.ticker === this.value);
+    if (inst) {
+      document.getElementById('customTickerInput').value = inst.ticker;
+      document.getElementById('go').value = inst.go;
+      document.getElementById('priceStep').value = inst.priceStep;
+      document.getElementById('stepCost').value = inst.stepCost;
+      document.getElementById('instr').value = 'custom';
+      document.getElementById('instr').dispatchEvent(new Event('change'));
+    }
+  });
+
+  updateSavedInstruments();
+
+  function updateExchangeTime() {
+    const now = new Date();
+    document.getElementById('exchange-time').textContent = 
+      `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')} (RT) 🇷🇺`;
+  }
+  setInterval(updateExchangeTime, 1000);
+  updateExchangeTime();
+
+  document.getElementById('theme-toggle').addEventListener('click', () => {
+    const isDark = document.body.getAttribute('data-theme') === 'dark';
+    const newTheme = isDark ? 'light' : 'dark';
+    document.body.setAttribute('data-theme', newTheme);
+    document.body.style.backgroundColor = newTheme === 'dark' ? '#000' : '#fff';
+    document.body.style.color = newTheme === 'dark' ? '#fff' : '#000';
+    document.getElementById('theme-toggle').textContent = newTheme === 'dark' ? '🌙' : '☀️';
+    const bg = newTheme === 'dark' ? '#222' : '#f9f9f9';
+    const text = newTheme === 'dark' ? '#fff' : '#000';
+    const border = newTheme === 'dark' ? '#444' : '#ccc';
+    document.querySelectorAll('input, select, .output, .schema-display, #helpModal .content').forEach(el => {
+      el.style.backgroundColor = bg;
+      el.style.color = text;
+      if (el.tagName !== 'DIV') el.style.border = `1px solid ${border}`;
+    });
+    document.querySelectorAll('th').forEach(el => {
+      el.style.backgroundColor = newTheme === 'dark' ? 'rgba(255,255,255,0.05)' : '#eee';
+    });
+  });
+
+  document.getElementById('btnLong').addEventListener('click', () => {
+    document.getElementById('btnLong').classList.add('active');
+    document.getElementById('btnShort').classList.remove('active');
+    validateSL();
+  });
+
+  document.getElementById('btnShort').addEventListener('click', () => {
+    document.getElementById('btnShort').classList.add('active');
+    document.getElementById('btnLong').classList.remove('active');
+    validateSL();
+  });
+
+  function syncRisk() {
+    const depo = +document.getElementById('depo').value;
+    const pct = +document.getElementById('riskPct').value;
+    document.getElementById('riskRub').value = Math.round(depo * pct / 100);
+  }
+
+  document.getElementById('riskPct').addEventListener('input', syncRisk);
+  document.getElementById('depo').addEventListener('input', syncRisk);
+
+  const profiles = { 
+    cons: [0.65, 0.2, 0.1, 0.05], 
+    bal: [0.5, 0.25, 0.15, 0.1], 
+    aggr: [0.35, 0.25, 0.2, 0.2] 
+  };
+  let currentProfile = 'cons';
+
+  document.querySelectorAll('[data-profile]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-profile]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentProfile = btn.dataset.profile;
+      calculate();
+    });
+  });
+
+  document.getElementById('btnAutoProfile').addEventListener('click', () => {
+    const sl = +document.getElementById('sl').value;
+    currentProfile = sl * 3 < 1500 ? 'cons' : sl * 3 <= 2500 ? 'bal' : 'aggr';
+    document.querySelectorAll('[data-profile]').forEach(b => b.classList.remove('active'));
+    document.querySelector(`[data-profile="${currentProfile}"]`).classList.add('active');
+    calculate();
+  });
+
+  function updateSLinSteps() {
+    const price = +document.getElementById('price').value;
+    const slPrice = +document.getElementById('slPrice').value;
+    const priceStep = +document.getElementById('priceStep').value || 0.01;
+
+    // ✅ PATCH #2: защита от NaN
+    if (isNaN(price) || isNaN(slPrice) || isNaN(priceStep) || priceStep <= 0) {
+      document.getElementById('sl').value = '';
+      return;
+    }
+
+    const slSteps = Math.abs(price - slPrice) / priceStep;
+    document.getElementById('sl').value = Math.round(slSteps);
+    validateSL();
+  }
+
+  function validateSL() {
+    const price = +document.getElementById('price').value;
+    const slPrice = +document.getElementById('slPrice').value;
+    const isLong = document.getElementById('btnLong').classList.contains('active');
+    const slInput = document.getElementById('slPrice');
+    const priceInput = document.getElementById('price');
+
+    // ✅ PATCH #2: проверка NaN и равенства
+    if (isNaN(price) || isNaN(slPrice) || price === slPrice || slPrice === 0) {
+      slInput.style.borderColor = 'var(--red)';
+      return false;
+    }
+
+    if ((isLong && slPrice >= price) || (!isLong && slPrice <= price)) {
+      slInput.style.borderColor = 'var(--red)';
+      priceInput.style.borderColor = 'var(--red)';
+      return false;
+    } else {
+      slInput.style.borderColor = 'var(--border)';
+      priceInput.style.borderColor = 'var(--border)';
+      return true;
+    }
+  }
+
+  ['price','slPrice','priceStep'].forEach(id => {
+    document.getElementById(id).addEventListener('input', updateSLinSteps);
+  });
+
+  function calculate() {
+    if (!checkDOMIntegrity()) {
+      alert('⚠️ Демо-режим повреждён. Перезагрузите страницу.');
+      return;
+    }
+    if (!demoGuardPassed) {
+      alert('⚠️ Демо-режим истёк или нарушен. Обновите страницу.');
+      return;
+    }
+    if (!validateSL()) return;
+
+    const depo = +document.getElementById('depo').value;
+    const go = +document.getElementById('go').value;
+    const risk = +document.getElementById('riskRub').value;
+    const sl = +document.getElementById('sl').value;
+    const stepCost = +document.getElementById('stepCost').value || 1;
+    const atrRaw = +document.getElementById('atr').value;
+
+    if (sl <= 0) {
+      document.getElementById('out').textContent = '⚠️ SL должен быть > 0';
+      return;
+    }
+
+    let N;
+    if (go === 0) {
+      N = Math.floor(risk / sl);
+      if (N <= 0) {
+        document.getElementById('out').textContent = '⚠️ Риск меньше потерь на 1 лот → 0 лотов';
+        return;
+      }
+    } else {
+      const maxLotsByDepo = Math.floor(depo / go);
+      const maxLotsByRisk = Math.floor(risk / sl);
+      N = Math.min(maxLotsByDepo, maxLotsByRisk);
+      if (N <= 0) {
+        document.getElementById('out').textContent = '⚠️ Недостаточно депо или слишком большой SL';
+        return;
+      }
+    }
+
+    let TP = [
+      Math.round(1.0 * sl),
+      Math.round(1.5 * sl),
+      Math.round(2.0 * sl),
+      Math.round(3.0 * sl)
+    ];
+    if (!isNaN(atrRaw) && atrRaw > 0) {
+      const atr = atrRaw;
+      TP = [
+        Math.min(TP[0], Math.round(0.5 * atr)),
+        Math.min(TP[1], Math.round(1.0 * atr)),
+        Math.min(TP[2], Math.round(1.5 * atr)),
+        Math.min(TP[3], Math.round(2.0 * atr))
+      ];
+    }
+
+    const w = profiles[currentProfile];
+    let [a, b, c] = w.map(x => Math.round(N * x));
+    let d = N - a - b - c;
+    if (d < 0) { a += d; d = 0; }
+    const lots = [a, b, c, d].map(x => Math.max(0, x));
+
+    const price = +document.getElementById('price').value;
+    const isLong = document.getElementById('btnLong').classList.contains('active');
+    const priceStep = +document.getElementById('priceStep').value || 0.01;
+
+    const tp1Price = (isLong ? price + TP[0] * priceStep : price - TP[0] * priceStep).toFixed(2);
+    const tp2Price = (isLong ? price + TP[1] * priceStep : price - TP[1] * priceStep).toFixed(2);
+    const tp3Price = (isLong ? price + TP[2] * priceStep : price - TP[2] * priceStep).toFixed(2);
+    const tp4Price = (isLong ? price + TP[3] * priceStep : price - TP[3] * priceStep).toFixed(2);
+
+    document.getElementById('tp1Price').value = tp1Price;
+    document.getElementById('tp2Price').value = tp2Price;
+    document.getElementById('tp3Price').value = tp3Price;
+    document.getElementById('tp4Price').value = tp4Price;
+
+    const visualDots = lots.map(l => l ? '•'.repeat(l) : '–').join('|');
+    const visualNumbers = lots.join('|');
+    document.getElementById('schemeVis').textContent = visualDots;
+
+    const rr = (TP[2] / sl).toFixed(1);
+    const rrDisplay = isNaN(atrRaw) || atrRaw <= 0 
+      ? `R:R ≈ ${rr}` 
+      : `R:R ≈ ${rr} (ATR=${atrRaw})`;
+    document.getElementById('rrDisplay').textContent = rrDisplay;
+
+    const profit = D => lots.reduce((s, l, i) => s + (D >= TP[i] ? l * TP[i] * stepCost : 0), 0);
+    document.getElementById('out').innerHTML = `
+Схема: ${visualNumbers}
+Прибыль:
+  TP1=${TP[0]} п. (R:R=${(TP[0]/sl).toFixed(1)}) = ${profit(TP[0])} ₽
+  TP2=${TP[1]} п. (R:R=${(TP[1]/sl).toFixed(1)}) = ${profit(TP[1])} ₽
+  TP3=${TP[2]} п. (R:R=${(TP[2]/sl).toFixed(1)}) = ${profit(TP[2])} ₽
+  TP4=${TP[3]} п. (R:R=${(TP[3]/sl).toFixed(1)}) = ${profit(TP[3])} ₽
+`.trim();
+
+    if (typeof window.incrCalcCount === 'function') window.incrCalcCount();
+  }
+
+  document.getElementById('btnCalc').addEventListener('click', calculate);
+
+  function safeParseLog() {
+    try {
+      const data = localStorage.getItem('voltaLog');
+      if (!data) return [];
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed) && parsed.every(item => 
+        item && typeof item === 'object' && item.time && item.ticker)) {
+        return parsed;
+      }
+    } catch (e) {
+      console.warn('⚠️ localStorage "voltaLog" повреждён — сброшен.');
+    }
+    localStorage.removeItem('voltaLog');
+    return [];
+  }
+
+  let log = safeParseLog();
+
+  function renderLog() {
+    if (!demoGuardPassed) return;
+    const t = document.getElementById('logBody');
+    if (log.length === 0) {
+      t.innerHTML = '<tr><td colspan="8" style="text-align:center">— пусто —</td></tr>';
+      return;
+    }
+    t.innerHTML = log.map(r => {
+      const tpRubStr = r.tpLevelsRub.map(tp => 
+        tp.lots > 0 ? `${tp.lots}×${tp.rub}` : '–'
+      ).join(' | ');
+      return `
+        <tr>
+          <td>${r.time}</td>
+          <td>${r.ticker}</td>
+          <td>${r.position}</td>
+          <td>${r.schemeNumbers}</td>
+          <td>${r.lots}</td>
+          <td>${r.slPts}</td>
+          <td>${tpRubStr}</td>
+          <td>+${r.totalProfitRub} ₽</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  document.getElementById('btnLog').addEventListener('click', () => {
+    calculate();
+    const outText = document.getElementById('out').textContent;
+    if (outText.includes('⚠️')) {
+      alert('⚠️ Сначала исправьте ошибки.');
+      return;
+    }
+
+    const price = +document.getElementById('price').value;
+    const slPrice = +document.getElementById('slPrice').value;
+    const isLong = document.getElementById('btnLong').classList.contains('active');
+    if ((isLong && slPrice >= price) || (!isLong && slPrice <= price)) {
+      alert('⚠️ SL некорректен относительно цены.');
+      return;
+    }
+
+    const depo = +document.getElementById('depo').value;
+    const riskRub = +document.getElementById('riskRub').value;
+    const stepCost = +document.getElementById('stepCost').value || 1;
+    const sl = +document.getElementById('sl').value;
+
+    const sel = document.getElementById('instr');
+    const instrText = sel.options[sel.selectedIndex].text;
+    let ticker = instrText.split(' (')[0];
+    if (ticker === 'Свой инструмент') {
+      ticker = document.getElementById('customTickerInput').value.trim() || '???';
+    }
+
+    const pos = isLong ? 'Long' : 'Short';
+    const go = +document.getElementById('go').value;
+    let N;
+    if (go === 0) {
+      N = Math.floor(riskRub / sl);
+    } else {
+      const maxLotsByDepo = Math.floor(depo / go);
+      const maxLotsByRisk = Math.floor(riskRub / sl);
+      N = Math.min(maxLotsByDepo, maxLotsByRisk);
+    }
+
+    if (N <= 0) {
+      alert('⚠️ Не получается открыть позицию: риск слишком мал или SL слишком велик.');
+      return;
+    }
+
+    const w = profiles[currentProfile];
+    let [aa, bb, cc] = w.map(x => Math.round(N * x));
+    let dd = N - aa - bb - cc;
+    if (dd < 0) { aa += dd; dd = 0; }
+    const lots = [aa, bb, cc, dd].map(x => Math.max(0, x));
+    const visualNumbers = lots.join('|');
+
+    const atrRaw = +document.getElementById('atr').value;
+    let TP = [Math.round(1.0*sl), Math.round(1.5*sl), Math.round(2.0*sl), Math.round(3.0*sl)];
+    if (!isNaN(atrRaw) && atrRaw > 0) {
+      const atr = atrRaw;
+      TP = [
+        Math.min(TP[0], Math.round(0.5 * atr)),
+        Math.min(TP[1], Math.round(1.0 * atr)),
+        Math.min(TP[2], Math.round(1.5 * atr)),
+        Math.min(TP[3], Math.round(2.0 * atr))
+      ];
+    }
+
+    const tpRub = TP.map((steps, i) => ({ 
+      level: i + 1, 
+      steps,
+      lots: lots[i], 
+      rub: lots[i] * steps * stepCost 
+    }));
+
+    const entry = {
+      time: new Date().toLocaleString('ru-RU', { 
+        year: '2-digit', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hour12: false 
+      }).replace(',', ''),
+      ticker,
+      position: pos,
+      depo,
+      riskRub,
+      slPts: sl,
+      priceStep: +document.getElementById('priceStep').value,
+      stepCost,
+      lots: N,
+      schemeNumbers: visualNumbers,
+      profile: currentProfile,
+      tpLevelsRub: tpRub,
+      totalProfitRub: tpRub.reduce((s, t) => s + t.rub, 0)
+    };
+
+    log.unshift(entry);
+
+    if (log.length > 50) log.length = 50;
+
+    // ✅ PATCH #3: защита от QuotaExceededError
+    try {
+      localStorage.setItem('voltaLog', JSON.stringify(log));
+    } catch (e) {
+      if (e.name === 'QuotaExceededError') {
+        alert('⚠️ Журнал переполнен. Очищен последний 1/3 записей.');
+        log = log.slice(0, Math.floor(log.length * 2 / 3));
+        try {
+          localStorage.setItem('voltaLog', JSON.stringify(log));
+        } catch (e2) {
+          alert('❌ Ошибка сохранения журнала. Очистите вручную.');
+        }
+      }
+    }
+
+    renderLog();
+  });
+
+  document.getElementById('btnClearLog').addEventListener('click', () => {
+    if (confirm('Очистить весь журнал? Это действие нельзя отменить.')) {
+      log = [];
+      try { localStorage.removeItem('voltaLog'); } catch (e) {}
+      renderLog();
+      if (confirm('Также очистить сохранённые инструменты?')) {
+        localStorage.removeItem('voltaInstruments');
+        updateSavedInstruments();
+      }
+    }
+  });
+
+  function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+  }
+
+  document.getElementById('btnExpExcel').addEventListener('click', () => {
+    if (log.length === 0) return alert('Журнал пуст');
+    const header = ['Время','Тикер','Позиция','Схема','Лотов','Депо','Риск, ₽','SL, шаги','TP1','TP2','TP3','TP4','Прибыль'];
+    const rows = log.map(r => [
+      r.time, r.ticker, r.position, r.schemeNumbers, r.lots, r.depo, r.riskRub, r.slPts,
+      r.tpLevelsRub[0].rub, r.tpLevelsRub[1].rub, r.tpLevelsRub[2].rub, r.tpLevelsRub[3].rub,
+      r.totalProfitRub
+    ]);
+    const csv = [header.join(';'), ...rows.map(r => r.map(String).join(';'))].join('\n');
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+    downloadBlob(blob, `VoltaDesk_${new Date().toISOString().slice(0,10)}.csv`);
+  });
+
+  document.getElementById('btnExpWord').addEventListener('click', () => {
+    if (log.length === 0) return alert('Журнал пуст');
+    const txt = `VoltaDesk Pro Futures — Журнал сделок\n` + 
+      log.map((r, i) => 
+        `${i+1}. ${r.time} | ${r.ticker} | ${r.position} | схема: ${r.schemeNumbers} | прибыль: +${r.totalProfitRub} ₽`
+      ).join('\n');
+    const blob = new Blob([txt], {type:'text/plain;charset=utf-8'});
+    downloadBlob(blob, `VoltaDesk_${new Date().toISOString().slice(0,10)}.txt`);
+  });
+
+  document.getElementById('btnBackup').addEventListener('click', () => {
+    const backup = {
+      version: 'V2.4.1',
+      timestamp: Date.now(),
+      log: log,
+      config: {
+        depo: +document.getElementById('depo').value,
+        riskRub: +document.getElementById('riskRub').value,
+        go: +document.getElementById('go').value,
+        priceStep: +document.getElementById('priceStep').value,
+        stepCost: +document.getElementById('stepCost').value
+      }
+    };
+    const blob = new Blob([JSON.stringify(backup, null, 2)], {type:'application/json;charset=utf-8'});
+    downloadBlob(blob, `volta_backup_${new Date().toISOString().slice(0,10)}.json`);
+    alert('✅ Бэкап создан.');
+  });
+
+  document.getElementById('btnHelp').onclick = () => {
+    document.getElementById('helpModal').style.display = 'flex';
+  };
+
+  const helpModal = document.getElementById('helpModal');
+  helpModal.addEventListener('click', (e) => {
+    if (e.target === helpModal) {
+      helpModal.style.display = 'none';
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && helpModal.style.display === 'flex') {
+      helpModal.style.display = 'none';
+    }
+  });
+
+  syncRisk();
+  updateSLinSteps();
+  calculate();
+  renderLog();
+  dlog('✅ Инициализация завершена');
+});
+</script>
+</body>
+</html>

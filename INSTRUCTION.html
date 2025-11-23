@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VoltaDesk Pro — Инструкция</title>
+  <style>
+    :root {
+      --bg: #f8f9fa;
+      --fg: #212529;
+      --accent: #0d6efd;
+      --border: #dee2e6;
+      --card-bg: #fff;
+      --warning: #ffc107;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #121212;
+        --fg: #e9ecef;
+        --card-bg: #1e1e1e;
+        --border: #444;
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      background-color: var(--bg);
+      color: var(--fg);
+      padding: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .version {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin: 10px 0;
+    }
+    .tagline {
+      font-size: 1.1rem;
+      opacity: 0.85;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .lang-switch {
+      margin-top: 12px;
+    }
+    .lang-switch button {
+      background: none;
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      margin: 0 4px;
+      border-radius: 4px;
+      cursor: pointer;
+      color: var(--fg);
+      font-size: 0.85rem;
+    }
+    .lang-switch button.active {
+      background-color: var(--accent);
+      color: white;
+    }
+    .section {
+      background: var(--card-bg);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      border: 1px solid var(--border);
+    }
+    h2 {
+      font-size: 1.4rem;
+      margin-bottom: 16px;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+    }
+    h2::before {
+      content: "•";
+      margin-right: 8px;
+      color: var(--warning);
+    }
+    ol, ul {
+      padding-left: 24px;
+      margin: 12px 0;
+    }
+    li {
+      margin-bottom: 8px;
+    }
+    .highlight {
+      background-color: rgba(13, 110, 253, 0.08);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+    .warning {
+      background-color: rgba(255, 193, 7, 0.15);
+      border-left: 4px solid var(--warning);
+      padding: 16px;
+      margin: 20px 0;
+      font-weight: 500;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
+    .btn {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+    .qr-placeholder {
+      text-align: center;
+      margin: 20px 0;
+      padding: 16px;
+      background: var(--card-bg);
+      border: 1px dashed var(--border);
+      border-radius: 6px;
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+    @media (max-width: 600px) {
+      body { padding: 12px; }
+      .version { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="version">VoltaDesk Pro Futures • V2.4.1</div>
+    <div class="tagline">Ваш локальный аналитический инструмент для фьючерсной торговли.<br>Все расчёты — в браузере. Никаких облаков. Никаких данных на серверах.</div>
+    <div class="lang-switch">
+      <button id="ru" class="active">🇷🇺 Русский</button>
+      <button id="en">🇬🇧 English</button>
+    </div>
+  </header>
+
+  <div id="content-ru">
+    <div class="section">
+      <h2>🚀 Как начать</h2>
+      <ol>
+        <li>Выберите инструмент (из списка или «Свой»)</li>
+        <li>Укажите: депозит, ГО, цена, шаг цены, риск в %, стоп-лосс (в ₽)</li>
+        <li>Нажмите «Рассчитать» → скопируйте TP1–TP4 в терминал</li>
+        <li>«В журнал» — чтобы отслеживать эффективность</li>
+      </ol>
+    </div>
+
+    <div class="section">
+      <h2>🔒 Демо и активация</h2>
+      <ul>
+        <li><strong>Демо-режим:</strong> 3 дня — для знакомства с интерфейсом.<br>Этого времени вполне достаточно, чтобы понять, нужен ли вам этот инструмент.</li>
+        <li>После истечения срока — интерфейс блокируется.</li>
+        <li>Для продолжения работы: активируйте Pro-версию за <strong>4 990 ₽</strong>.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>💳 Как оплатить и получить токен</h2>
+      <ol>
+        <li>Оплатите <strong>4 990 ₽</strong> через СБП (QR вышлю по запросу).</li>
+        <li>Отправьте скрин оплаты + ваш email на: <a href="mailto:VoltaDesk.Pro@yandex.ru">VoltaDesk.Pro@yandex.ru</a></li>
+        <li>В течение 24 часов вы получите токен вида: <span class="highlight">VD-FUT-2025-ivan_gmail_com-AB3C9D</span></li>
+        <li>Вставьте его в поле «Введите токен» → нажмите «Активировать».</li>
+        <li><strong>ВАЖНО!</strong> В течение 24 часов вы должны активировать программу и выслать на email подтверждение: <span class="highlight">"Активирован"</span>.<br>В противном случае ваш email может быть заблокирован со статусом «временный, не настоящий» и попадёт в чёрный список.</li>
+      </ol>
+
+      <h3>Как активировать:</h3>
+      <ol>
+        <li>Откройте VoltaDesk в браузере.</li>
+        <li>В правом верхнем углу — поле «Введите токен».</li>
+        <li>Вставьте токен → нажмите «Активировать».</li>
+        <li>Готово! DEMO-режим отключён, доступна полная Pro-версия.</li>
+      </ol>
+
+      <div class="qr-placeholder">
+        🖼️ QR-код для оплаты будет выслан по запросу на email.<br>
+        Напишите: <em>«Нужен QR»</em> → пришлю в течение 24 часов.
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>📌 Важно</h2>
+      <ul>
+        <li>Токен привязан к вашему email.</li>
+      </ul>
+    </div>
+
+    <div class="warning">
+      ⚠️ <strong>Не пытайтесь лезть в код, копировать логику и сам код!</strong><br>
+      Не делайте этого! Код рассыпается — последствия могут быть необратимы!<br>
+      Смена времени, часового пояса также заблокируют интерфейс!<br>
+      В случае технического сбоя по вашей вине — оплата не возвращается!<br>
+      Ваш e-mail и платёжный слепок попадают в чёрный список!
+    </div>
+
+    <div class="footer">
+      <p>С уважением,<br><strong>Вячеслав</strong><br>VoltaDesk.Pro<br>
+      <a href="mailto:VoltaDesk.Pro@yandex.ru">VoltaDesk.Pro@yandex.ru</a></p>
+
+      <a href="../" class="btn">← Вернуться в VoltaDesk</a>
+    </div>
+  </div>
+
+  <div id="content-en" style="display:none;">
+    <div class="section">
+      <h2>🚀 How to Get Started</h2>
+      <ol>
+        <li>Choose an instrument (from the list or "Custom")</li>
+        <li>Enter: deposit, margin, price, tick size, risk %, stop-loss (in ₽)</li>
+        <li>Click "Calculate" → copy TP1–TP4 into your terminal</li>
+        <li>"To Journal" — to track performance</li>
+      </ol>
+    </div>
+
+    <div class="section">
+      <h2>🔒 Demo and Activation</h2>
+      <ul>
+        <li><strong>Demo mode:</strong> 3 days — to get familiar with the interface.<br>This is enough time to understand if you need this tool.</li>
+        <li>After the period expires — the interface is locked.</li>
+        <li>To continue working: activate the Pro version for <strong>₽4,990</strong>.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>💳 How to Pay and Get a Token</h2>
+      <ol>
+        <li>Pay <strong>₽4,990</strong> via SBP (QR will be sent upon request).</li>
+        <li>Send a screenshot of the payment + your email to: <a href="mailto:VoltaDesk.Pro@yandex.ru">VoltaDesk.Pro@yandex.ru</a></li>
+        <li>Within 24 hours, you will receive a token like: <span class="highlight">VD-FUT-2025-ivan_gmail_com-AB3C9D</span></li>
+        <li>Paste it into the "Enter Token" field → click "Activate".</li>
+        <li><strong>IMPORTANT!</strong> You must activate the program and send confirmation <span class="highlight">"Activated"</span> to VoltaDesk.Pro@yandex.ru within 24 hours.<br>Otherwise, your email may be blocked with the status "temporary, not real" and will be blacklisted.</li>
+      </ol>
+
+      <h3>How to Activate:</h3>
+      <ol>
+        <li>Open VoltaDesk in your browser.</li>
+        <li>In the top right corner — the "Enter Token" field.</li>
+        <li>Paste the token → click "Activate".</li>
+        <li>Done! DEMO mode is disabled, full Pro version is available.</li>
+      </ol>
+
+      <div class="qr-placeholder">
+        🖼️ QR code for payment will be sent upon request.<br>
+        Write: <em>"Need QR"</em> → I'll send it within 24 hours.
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>📌 Important</h2>
+      <ul>
+        <li>The token is tied to your email.</li>
+      </ul>
+    </div>
+
+    <div class="warning">
+      ⚠️ <strong>Do not try to access the code, copy the logic, or the code itself!</strong><br>
+      Do not do this! The code will break — consequences could be irreversible!<br>
+      Changing the time or time zone will also lock the interface!<br>
+      In case of a technical failure caused by you — payment is non-refundable!<br>
+      Your email and payment receipt will be blacklisted!
+    </div>
+
+    <div class="footer">
+      <p>Best regards,<br><strong>Vyacheslav</strong><br>VoltaDesk.Pro<br>
+      <a href="mailto:VoltaDesk.Pro@yandex.ru">VoltaDesk.Pro@yandex.ru</a></p>
+
+      <a href="../" class="btn">← Back to VoltaDesk</a>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('ru').addEventListener('click', () => {
+      document.getElementById('content-ru').style.display = 'block';
+      document.getElementById('content-en').style.display = 'none';
+      document.getElementById('ru').classList.add('active');
+      document.getElementById('en').classList.remove('active');
+    });
+    document.getElementById('en').addEventListener('click', () => {
+      document.getElementById('content-ru').style.display = 'none';
+      document.getElementById('content-en').style.display = 'block';
+      document.getElementById('en').classList.add('active');
+      document.getElementById('ru').classList.remove('active');
+    });
+  </script>
+
+</body>
+</html>
